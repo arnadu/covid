@@ -255,10 +255,10 @@ def format_plot(ax, scale='linear', title=''):
 #--------------------------------------------------------------
 def study3(filepath, source, region, state, cutoff_positive,cutoff_death, truncate, window):
 
-    html_file = open("study.html", "w") #overwrite temporary file, the stuff gets uploaded to S3 at the end
-    html_file.write('<html><body><p>{}</p>'.format(filepath))
+    html_file = open("study.html", "r") #overwrite temporary file, the stuff gets uploaded to S3 at the end
+    html_file.write('p>{}</p>'.format(filepath))
 
-    print('------------')
+    print.write('------------')
     print(source,': ', region, '-', state)
     
     d = Data(source=source, region=region, state=state, county="", cutoff_positive=cutoff_positive, cutoff_death=cutoff_death, truncate=truncate)
@@ -387,16 +387,14 @@ def study3(filepath, source, region, state, cutoff_positive,cutoff_death, trunca
     
     fig.savefig('{}_expgrowth.png'.format(filepath), bbox_inches='tight')
     output_plot('covid-statistics', '{}_expgrowth.png'.format(filepath), fig)
-    html_file.write('<img src="{}_expgrowth.png">'.format(filepath))
+    html_file.write('<img src="{}__expgrowth.png">'.format(filepath))
     
     #plt.show()
-    html_file.write('</body></html>')
     html_file.close()
     
     s3 = boto3.resource('s3')
-    s3.meta.client.upload_file('study.html', 'covid-statistics', '{}_study.html'.format(filepath),ExtraArgs={'ContentType':'text/html'})
+    s3.upload_file('study.html', 'covid-statistics', '{}_study.html'.format(filepath))
     return '{}_study.html'.format(filepath)
 
-#test
-#study3('US-New York', source='Johns Hopkins', region='US', state='New York', cutoff_positive=1, cutoff_death=1, truncate=0, window=2)
+study3('US-New York', source='Johns Hopkins', region='US', state='New York', cutoff_positive=1, cutoff_death=1, truncate=0, window=2)
 
