@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://d3js.org/d3.v3.min.js"></script>
+    <script type="text/javascript" src="https://mpld3.github.io/js/mpld3.v0.3.js"></script>
+</head>
+
+<body>
+
+    <style>
+    </style>
+
+    <h1>{{ title }}</h1>
+    
+    {% for item in items.values() %}
+    
+        {% if item.datatype == 'MPLD3' %}
+        
+            <div id={{ item.name }}></div>
+            
+            <script type="text/javascript">
+                $.getJSON('https://covid-statistics.s3.amazonaws.com/{{ item.json_filename }}', function(data) {mpld3.draw_figure("{{ item.name }}", data);});
+            </script>
+            
+        {% else %}
+        
+            <p id={{ item.name }}> {{ item.data }} </p>
+        
+        {% endif %}
+    
+
+    {% endfor %}
+   
+ 
+</body>
+</html>
