@@ -18,15 +18,23 @@
     
         {% if item.datatype == 'MPLD3' %}
         
-            <div id={{ item.name }}></div>
+            <div id="{{ item.name }}"></div>
             
             <script type="text/javascript">
-                $.getJSON('https://covid-statistics.s3.amazonaws.com/{{ item.json_filename }}', function(data) {mpld3.draw_figure("{{ item.name }}", data);});
+                $.getJSON("https://covid-statistics.s3.amazonaws.com/{{ item.filename }}", function(data) {mpld3.draw_figure("{{ item.name }}", data);});
             </script>
-            
+        
+        {% elif  item.datatype == 'MPLPNG' %}
+        
+            <img src="{{ item.filename }}">
+
+        {% elif  item.datatype == 'HTML' %}
+        
+            {{ item.data }}
+        
         {% else %}
         
-            <p id={{ item.name }}> {{ item.data }} </p>
+            <p id="{{ item.name }}"> {{ item.data }} </p>
         
         {% endif %}
     

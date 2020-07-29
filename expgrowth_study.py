@@ -21,6 +21,7 @@ from matplotlib.pyplot import cm
 
 from data import Data
 from object_dict import objdict
+from report import Report
 
 
 #--------------------------------------------------------------
@@ -253,10 +254,16 @@ def format_plot(ax, scale='linear', title=''):
 
 #--------------------------------------------------------------
 #--------------------------------------------------------------
-def study3(filepath, source, region, state, cutoff_positive,cutoff_death, truncate, window):
 
-    html_file = open("study.html", "w") #overwrite temporary file, the stuff gets uploaded to S3 at the end
-    html_file.write('<html><body><p>{}</p>'.format(filepath))
+from SIR_study import SIR_study
+
+#--------------------------------------------------------------
+
+def study3(source, region, state, cutoff_positive,cutoff_death, truncate, window):
+
+
+    output = Report()
+    
 
     print('------------')
     print(source,': ', region, '-', state)
@@ -267,8 +274,18 @@ def study3(filepath, source, region, state, cutoff_positive,cutoff_death, trunca
     
     n = len(d.fatalities)
     print('n:{} minD:{}, minP:{}'.format(n,d.minD, d.minP))
+    output.record('number of days', 'n:{} minD:{}, minP:{}'.format(n,d.minD, d.minP), 'TEXT')
+    
+    #fig1, axs = plt.subplots(1,1,figsize=(6,6))
+    #x = np.arange(10)
+    #y = x*x
+    #axs.plot(x,y)
+    #output.record('fig', fig1, 'MPLPNG')
+    
+    
 
-    rpt={'state':'{}{}'.format(d.region, d.state)}
+    #rpt={'state':'{}{}'.format(d.region, d.state)}
+    rpt={}
 
     #--------------------------------
     if ed is not None:   
@@ -278,11 +295,9 @@ def study3(filepath, source, region, state, cutoff_positive,cutoff_death, trunca
         axs.plot(ed['date'], ed['excess_deaths']/7, "g:", label='excess deaths compared to historical baseline')
         format_plot(axs,'linear','{}{} reported Covid fatalities compared to excess deaths vs.historical baseline'.format(region,state))
         
-        
-        fig.savefig('{}_excessdeaths.png'.format(filepath), bbox_inches='tight')
-        output_plot('covid-statistics', '{}_excessdeaths.png'.format(filepath), fig)
-        html_file.write('<img src="{}_excessdeaths.png">'.format(filepath))
-        
+        output.record('excess deaths', fig, 'MPLPNG')
+        output.record('excess deaths json', fig, 'MPLPD3')
+
     #--------------------------------
     fig, axs = plt.subplots(3,2,figsize=(18,18))
     
@@ -371,8 +386,11 @@ def study3(filepath, source, region, state, cutoff_positive,cutoff_death, trunca
     
     #--------------------------------
     
+    ht = '<table>'
     for idx, (k,v) in enumerate(rpt.items()):
-        print('{}\t\t{}'.format(k,v))
+        ht += '<tr><td>{}</td><td>{:,.0f}</td></tr>'.format(k,v)
+    ht += '</table>'
+    output.record('doubling times', ht, 'HTML')
               
     #--------------------------------
     
@@ -385,18 +403,31 @@ def study3(filepath, source, region, state, cutoff_positive,cutoff_death, trunca
             format_plot(a,scale,titles[i])
             i=i+1
     
-    fig.savefig('{}_expgrowth.png'.format(filepath), bbox_inches='tight')
-    output_plot('covid-statistics', '{}_expgrowth.png'.format(filepath), fig)
-    html_file.write('<img src="{}_expgrowth.png">'.format(filepath))
+    output.record('exponential growth trends', fig, 'MPLPNG')
+
+    #fig.savefig('{}_expgrowth.png'.format(filepath), bbox_inches='tight')
+    #output_plot('covid-statistics', '{}_expgrowth.png'.format(filepath), fig)
+    #html_file.write('<img src="{}_expgrowth.png">'.format(filepath))
     
     #plt.show()
-    html_file.write('</body></html>')
-    html_file.close()
+    #html_file.write('</body></html>')
+    #html_file.close()
     
-    s3 = boto3.resource('s3')
-    s3.meta.client.upload_file('study.html', 'covid-statistics', '{}_study.html'.format(filepath),ExtraArgs={'ContentType':'text/html'})
-    return '{}_study.html'.format(filepath)
+    #s3 = boto3.resource('s3')
+    #s3.meta.client.upload_file('study.html', 'covid-statistics', '{}_study.html'.format(filepath),ExtraArgs={'ContentType':'text/html'})
+    #return '{}_study.html'.format(filepath)
+    
+    #calibrates a SIR model and adds results to the report
+    SIR_study(d, output)
+    
+    return output
 
 #test
-#study3('US-New York', source='Johns Hopkins', region='US', state='New York', cutoff_positive=1, cutoff_death=1, truncate=0, window=2)
+#------------
+#r = study3(source='Johns Hopkins', region='US', state='New York', cutoff_positive=1, cutoff_death=1, truncate=0, window=2)
+#r.set_localfolder('./test/', True) 
+#r.to_html('COVID Statistics', subfolder='', index_filename='study.html', template_name='study.html')
+
+
+
 
