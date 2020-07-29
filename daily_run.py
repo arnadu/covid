@@ -16,7 +16,7 @@ studies = [ {'region':'US','state':'New York'},
             {'region':'US','state':'California'},
             {'region':'US','state':'New Jersey'},
             {'region':'US','state':'Connecticut'},
-            {'region':'US','state':'Massachusets'},
+            {'region':'US','state':'Massachusetts'},
             {'region':'US','state':'New Hampshire'},
             {'region':'US','state':'Florida'},
             {'region':'US','state':'Texas'},
@@ -86,7 +86,7 @@ with open('./report/index.json', 'w') as outfile:
 
 #generate a new index.html page linking to all previous calculation results
 ri.record('previous_calc', previous_calc['index'], '')
-ri.to_html('COVID Statistics', subfolder='', index_filename='index2.html', template_name='index2.html')
+ri.to_html('COVID Statistics', subfolder='', index_filename='index.html', template_name='index.html')
 
 #copy the whole thing to S3
 ri.copy_to_s3('covid-statistics')

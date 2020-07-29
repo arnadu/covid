@@ -72,8 +72,8 @@ class Report(OrderedDict):
             elif val['datatype']=='MPLPNG':
                 png_filename = key.replace(" ","_") + '.png'
                 val['data'].savefig(os.path.join(self.local_folder, subfolder+png_filename))  #val['data'] is expected to be a matplotlib figure
-                del val['data']
-                gc.collect()
+                #del val['data']
+                #gc.collect()
                 val['filename'] = png_filename  #add the png's filename to the dictionary, it will be used by the jinja2 template to create a IMG tag with this file as source)
             else:
                 pass

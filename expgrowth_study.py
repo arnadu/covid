@@ -289,14 +289,14 @@ def study3(source, region, state, cutoff_positive,cutoff_death, truncate, window
 
     #--------------------------------
     if ed is not None:   
-        fig, axs = plt.subplots(1,1,figsize=(12,6))
+        fig, axs = plt.subplots(1,1,figsize=(9,6))
         axs.plot(d.xd[d.minD+1:], d.dfatalities,'+:', label='daily fatalities, COVID (JHU)')
         axs.plot(ed['date'], ed['total_deaths']/7, "m:", label='daily fatalities, all causes (Economist)')
         axs.plot(ed['date'], ed['excess_deaths']/7, "g:", label='excess deaths compared to historical baseline')
         format_plot(axs,'linear','{}{} reported Covid fatalities compared to excess deaths vs.historical baseline'.format(region,state))
         
         output.record('excess deaths', fig, 'MPLPNG')
-        output.record('excess deaths json', fig, 'MPLPD3')
+        #output.record('excess deaths json', fig, 'MPLPD3')
 
     #--------------------------------
     fig, axs = plt.subplots(3,2,figsize=(18,18))
@@ -417,7 +417,8 @@ def study3(source, region, state, cutoff_positive,cutoff_death, truncate, window
     #s3.meta.client.upload_file('study.html', 'covid-statistics', '{}_study.html'.format(filepath),ExtraArgs={'ContentType':'text/html'})
     #return '{}_study.html'.format(filepath)
     
-    #calibrates a SIR model and adds results to the report
+    #----------------------------------------------------------
+    #calibrates the SIR model and adds results to the report
     SIR_study(d, output)
     
     return output

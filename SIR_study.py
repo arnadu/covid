@@ -1341,7 +1341,7 @@ def format_plot(ax, scale='linear', title=''):
     
     
 def report_charts(d, rpt):
-    fig,axs = plt.subplots(8,2,figsize=(12,24))
+    fig,axs = plt.subplots(8,2,figsize=(18,48))
 
     axs[0][0].plot(d.xd, d.fatalities, '+:', label='Fatalities')
     axs[1][0].plot(d.xd, d.fatalities, '+:', label='Fatalities')
@@ -1423,8 +1423,8 @@ def SIR_study(d, r):
     rpt=[]
     
     #-------------------------------
-    label = 'piecewise (4)'
-    calib = calibrate_fatalities_piecewiselinear_multiple(d, label=label, segments=4, window=2, startx=d.minP, overrides={'model':'SEIRF', 'gamma_incub':1/4, 'gamma_infec':1/3, 'gamma_pos':1/14, 'gamma_crit':1/14})
+    label = 'piecewise (5)'
+    calib = calibrate_fatalities_piecewiselinear_multiple(d, label=label, segments=5, window=2, startx=d.minP, overrides={'model':'SEIRF', 'gamma_incub':1/4, 'gamma_infec':1/3, 'gamma_pos':1/14, 'gamma_crit':1/14})
     rpt.append(calib)
     
     res = report_calib_html(label, d, calib['p'], calib['y'])
@@ -1432,12 +1432,12 @@ def SIR_study(d, r):
     
 
     #-------------------------------
-    label = 'reopening'
-    calib = calibrate_fatalities_reopening(d, label='reopening', border0=10, border1=0, window=2, startx=d.minP, overrides={'model':'SEIRF', 'death_rate':0.5e-2,'gamma_incub':1/4, 'gamma_infec':1/3, 'gamma_pos':1/14, 'gamma_crit':1/14})
-    rpt.append(calib)
+    #label = 'reopening'
+    #calib = calibrate_fatalities_reopening(d, label='reopening', border0=10, border1=0, window=2, startx=d.minP, overrides={'model':'SEIRF', 'death_rate':0.5e-2,'gamma_incub':1/4, 'gamma_infec':1/3, 'gamma_pos':1/14, 'gamma_crit':1/14})
+    #rpt.append(calib)
     
-    res = report_calib_html(label, d, calib['p'], calib['y'])
-    r.record(label, res, 'HTML')    
+    #res = report_calib_html(label, d, calib['p'], calib['y'])
+    #r.record(label, res, 'HTML')    
     
     #-------------------------------
     fig = report_charts(d, rpt)
