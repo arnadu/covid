@@ -386,7 +386,7 @@ def study3(source, region, state, cutoff_positive,cutoff_death, truncate, window
     
     #--------------------------------
     
-    ht = '<table>'
+    ht = '<table><tr><th>Doubling Times</th><th>Days</th></tr>'
     for idx, (k,v) in enumerate(rpt.items()):
         ht += '<tr><td>{}</td><td>{:,.0f}</td></tr>'.format(k,v)
     ht += '</table>'

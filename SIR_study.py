@@ -229,13 +229,16 @@ def calibrate_fatalities(d, constants, startx):
 #Piece-wise linear contact rate with a single varying time point
 #---------------------------------------------------------------
 
-def html_row(c1, c2):
-    return "<tr><td>{}</td><td>{}</td></tr>".format(c1,c2)
+def html_row(c1, c2, header=False):
+    if header:
+        return "<tr><th>{}</th><th>{}</th></tr>".format(c1,c2)
+    else:
+        return "<tr><td>{}</td><td>{}</td></tr>".format(c1,c2)
 
 def report_calib_html(label, d, p, y):
     
     ht = '<table>'
-    ht += html_row("Model",label)
+    ht += html_row("Model",label, True)
     ht += html_row("Population","{:,.0f}".format(d.population))
     ht += html_row("P0","{:,.0f}".format(p['p0']))
     ht += html_row("F0","{:,.0f}".format(p['f0']))
@@ -251,9 +254,9 @@ def report_calib_html(label, d, p, y):
         if 'beta{}'.format(i) in p:
             ht += html_row("Day {:.0f}".format(p['t{}'.format(i)]), "{:.1f}".format(p['beta{}'.format(i)]/p['gamma_infec']))
 
-    ht += html_row("IFR","{:2%}".format(p['death_rate']))
+    ht += html_row("IFR","{:.1%}".format(p['death_rate']))
 
-    ht += html_row("Detect","{:2%}".format(p['detection_rate']))
+    ht += html_row("Detect","{:.0%}".format(p['detection_rate']))
     for i in range(1, p['testing_segments']+1):
             ht += html_row("Day {:.0f}".format(p['testing_time{}'.format(i)]), "{:.1f}".format(p['detection_rate{}'.format(i)]))
 
