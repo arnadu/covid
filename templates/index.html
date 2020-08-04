@@ -12,6 +12,24 @@
 
     <h1>{{ title }}</h1>
 
+    <p>
+        This web-site archives the results of a statistical analysis of the propagaion of the COVID-19 epidemic. Results are automatically updated on a daily basis.
+        Three types of analyzes are produced, for a selection of European countries and US States:
+        <ul>
+            <li>A comparison of COVID fatalities to Excess Deaths. This analysis provides a high-level understanding of the severity of the epidemic in relation to the historical level of daily fatalities.</li>
+            <li>The trends of COVID infections and fatalities, assuming separate piece-wise exponential growth regimes separately for daily positive test counts, and for daily fatalities counts. This analysis provides an understanding of the change of the speed of propagation over time.</li>
+            <li>The evolution of the COVID epidemic calibrated with a Susceptible-Infected-Recovered (SIR) model. This analysis provides an understanding of the relationship between testing and fatalities counts, and an estimate of the current number of infected and recovered people in the population</li>
+        </ul>
+        <br>The data used for these analyses is sourced from Johns Hopkins University, The Economist, and The COVID Tracking Project.
+    </p>
+
+    <p>
+        <a href="https://github.com/arnadu/covid">Link to the code used to produce these results</a>
+    </p>
+    
+    <p>Links to the results:<p>
+        
+
     <table>
     {% for calc_date in items.previous_calc.data %}
         

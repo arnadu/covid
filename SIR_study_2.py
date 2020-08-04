@@ -1421,36 +1421,25 @@ def report_charts(d, rpt):
     return fig
 
 ##########################################################
-def SIR_study(d, r):
+def SIR_study(d, r, window=2, segments=5):
     
     rpt=[]
     
     #-------------------------------
-    label = 'piecewise (6/2)'
-    calib = calibrate_fatalities_piecewiselinear_multiple(d, label=label, segments=5, window=2, startx=d.minP, overrides={'model':'SEIRF', 'gamma_incub':1/4, 'gamma_infec':1/3, 'gamma_pos':1/14, 'gamma_crit':1/14})
+    label = 'piecewise ({})'.format(segments+1)
+    calib = calibrate_fatalities_piecewiselinear_multiple(d, label=label, segments=segments, window=window, startx=d.minP, overrides={'model':'SEIRF', 'gamma_incub':1/4, 'gamma_infec':1/3, 'gamma_pos':1/14, 'gamma_crit':1/14})
     rpt.append(calib)
     
     res = report_calib_html(label, d, calib['p'], calib['y'])
     r.record(label, res, 'HTML')    
-
+   
     #-------------------------------
-    label = 'piecewise (7/7)'
-    calib = calibrate_fatalities_piecewiselinear_multiple(d, label=label, segments=6, window=7, startx=d.minP, overrides={'model':'SEIRF', 'gamma_incub':1/4, 'gamma_infec':1/3, 'gamma_pos':1/14, 'gamma_crit':1/14})
-    rpt.append(calib)
+    #label = 'reopening'
+    #calib = calibrate_fatalities_reopening(d, label='reopening', border0=10, border1=0, window=2, startx=d.minP, overrides={'model':'SEIRF', 'death_rate':0.5e-2,'gamma_incub':1/4, 'gamma_infec':1/3, 'gamma_pos':1/14, 'gamma_crit':1/14})
+    #rpt.append(calib)
     
-    res = report_calib_html(label, d, calib['p'], calib['y'])
-    r.record(label, res, 'HTML')    
-    
-
-    #-------------------------------
-    '''
-    label = 'reopening'
-    calib = calibrate_fatalities_reopening(d, label='reopening', border0=10, border1=0, window=2, startx=d.minP, overrides={'model':'SEIRF', 'death_rate':0.5e-2,'gamma_incub':1/4, 'gamma_infec':1/3, 'gamma_pos':1/14, 'gamma_crit':1/14})
-    rpt.append(calib)
-    
-    res = report_calib_html(label, d, calib['p'], calib['y'])
-    r.record(label, res, 'HTML')    
-    '''
+    #res = report_calib_html(label, d, calib['p'], calib['y'])
+    #r.record(label, res, 'HTML')    
     
     #-------------------------------
     fig = report_charts(d, rpt)
@@ -1458,32 +1447,15 @@ def SIR_study(d, r):
     
     del rpt
 
+#--------------------------
+def test_SIR_study(source, region, state, cutoff_positive,cutoff_death, truncate, window=2, segments=5):
 
-'''
-##############
-##### NEW YORK
-#####
-###############
+    r = Report()
 
+    d = Data(source=source, region=region, state=state, county="", cutoff_positive=cutoff_positive, cutoff_death=cutoff_death, truncate=0)
 
-source          = 'Johns Hopkins'
-region          = 'US'
-state           = 'New York'
-cutoff_positive = 1
-cutoff_death    = 1
+    SIR_study(d,r,window, segments)
 
-r = Report()
-r.set_localfolder('./test/', True) 
-
-d = Data(source=source, region=region, state=state, county="", cutoff_positive=cutoff_positive, cutoff_death=cutoff_death, truncate=0)
-
-SIR_study(d,r)
-
-r.to_html('COVID Statistics', subfolder='', index_filename='study.html', template_name='study.html')
-
-#copy the whole thing to S3
-r.copy_to_s3('covid-statistics')
-'''
 
 
 
