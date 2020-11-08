@@ -256,6 +256,7 @@ def format_plot(ax, scale='linear', title=''):
 #--------------------------------------------------------------
 
 from SIR_study import SIR_study
+from piecewise_expgrowth import piecewiseexp_study
 
 #--------------------------------------------------------------
 
@@ -282,6 +283,9 @@ def study3(source, region, state, cutoff_positive,cutoff_death, truncate, window
     #axs.plot(x,y)
     #output.record('fig', fig1, 'MPLPNG')
     
+    #--------------------
+    output = piecewiseexp_study(d, output, breaks=3, minwindow=14)
+    #--------------------
     
 
     #rpt={'state':'{}{}'.format(d.region, d.state)}
