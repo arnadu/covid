@@ -4,7 +4,6 @@ import json
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from data import Data
 from expgrowth_study import study3
 from report import Report
 
@@ -12,10 +11,6 @@ import gc
 import traceback
 
 import sys, getopt
-
-
-import tracemalloc
-
 
 
 #------------------------------------------------------------------------
@@ -40,21 +35,16 @@ def main(argv):
 
     s3 = boto3.resource('s3')
 
-
-    d = Data()
-    USStates = d.database.jhUS['state'].unique()
-
-    #studies = [ {'region':'US','state':'New York'},
-    #            {'region':'US','state':'California'},
-    #            {'region':'US','state':'New Jersey'},
-    #            {'region':'US','state':'Connecticut'},
-    #            {'region':'US','state':'Massachusetts'},
-    #            {'region':'US','state':'New Hampshire'},
-    #            {'region':'US','state':'Florida'},
-    #            {'region':'US','state':'Texas'},
-    #            {'region':'US','state':'Georgia'},
-    
-    studies = [ {'region':'France','state':''},
+    studies = [ {'region':'US','state':'New York'},
+                {'region':'US','state':'California'},
+                {'region':'US','state':'New Jersey'},
+                {'region':'US','state':'Connecticut'},
+                {'region':'US','state':'Massachusetts'},
+                {'region':'US','state':'New Hampshire'},
+                {'region':'US','state':'Florida'},
+                {'region':'US','state':'Texas'},
+                {'region':'US','state':'Georgia'},
+                {'region':'France','state':''},
                 {'region':'Italy','state':''},
                 {'region':'Spain','state':''},
                 {'region':'United Kingdom','state':''},
@@ -65,11 +55,6 @@ def main(argv):
                 {'region':'Netherlands','state':''},
             ]
 
-    studies.append({'region':'US','state':''})
-    for state in USStates:
-        studies.append({'region':'US','state':state})
-        
-        
     calcdate = datetime.today().strftime('%Y-%m-%d')
 
     #---------------------------
@@ -136,14 +121,5 @@ def main(argv):
 
 #-------------------------------------
 if __name__ == "__main__":
-    
-    
-    tracemalloc.start() #https://docs.python.org/3/library/tracemalloc.html
-    snapshot = tracemalloc.take_snapshot()
-    
     main(sys.argv[1:])
 
-    top_stats = snapshot.statistics('lineno')
-    print("[ Top 10 ]")
-    for stat in top_stats[:10]:
-        print(stat)

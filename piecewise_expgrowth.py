@@ -301,6 +301,7 @@ def test_piecewiseexp():
 #-------------------------------
 #Fit a piecewise exponential growth model to the daily fatalities data
 #-------------------------------
+'''
 def piecewiseexp_study(d, output, breaks=3, minwindow=14):
 
     fig, axs = plt.subplots(1,1,figsize=(12,6))  
@@ -372,6 +373,108 @@ def piecewiseexp_study(d, output, breaks=3, minwindow=14):
     output.record('Doubling Time', res.to_html(), 'HTML')
     
     return output
+'''
+
+
+def piecewiseexp_study(d, output, breaks=3, minwindow=14):
+
+    fig, axs = plt.subplots(1,1,figsize=(12,6))  
+
+    #------------
+    #FATALITIES
+    #------------
+    
+    #find the optimal piecewise exponentatial fit for the given number of breakpoints
+    #--------------------------------------------
+    min_params, min_breakpoints, min_likelihood, min_fit = piecewiseexp_diffevol(d.x[d.minD+1:],d.dfatalities,
+                                                                                        breaks=breaks,minwindow=minwindow)
+
+    axs.plot(d.xd[d.minD+1:], min_fit, "k-", zorder=4, label='breakpoints:{}'.format(breaks))
+
+
+    #calculate the doubling time for each segment
+    #--------------------------------------------
+    res_fat = []  
+
+    d0 = np.datetime64(d.xd.iloc[d.minD+1])
+    for i,b in enumerate(min_breakpoints):
+        d1 = np.datetime64(d.xd.iloc[d.minD+1] + timedelta(int(b)))
+        res_fat.append({'from':d0, 'to':d1, 'doubling (days)': int(np.log(2)/min_params[i+1])})
+        d0 = d1
+
+    d1 = np.datetime64(d.xd.iloc[-1])
+    res_fat.append({'from':d0, 'to':d1, 'doubling (days)': int(np.log(2)/min_params[-1])})
+
+    res_fat = pd.DataFrame(res_fat)
+    print(res_fat)
+
+    #plot the raw data
+    #-------------
+    axs.scatter(d.xd[d.minD+1:], d.dfatalities, 
+                marker='o', s=200, alpha=0.8, 
+                c = d.dfatalities, cmap = 'Oranges', norm=colors.LogNorm(vmin=1, vmax=1000), zorder=2,
+                label='fatalities')
+
+    axs.plot(d.xd[d.minD+1:], d.dfatalities, ':', c='lightgrey', zorder=1)
+
+    #------------
+    #POSITIVES
+    #------------
+
+    #find the optimal piecewise exponentatial fit for the given number of breakpoints
+    #--------------------------------------------
+    min_params, min_breakpoints, min_likelihood, min_fit = piecewiseexp_diffevol(d.x[d.minP+1:],d.dpositives,
+                                                                                        breaks=breaks,minwindow=minwindow)
+
+    axs.plot(d.xd[d.minP+1:], min_fit, "k-", zorder=4, label='breakpoints:{}'.format(breaks))
+
+
+    #calculate the doubling time for each segment
+    #--------------------------------------------
+    res_pos = []  
+
+    d0 = np.datetime64(d.xd.iloc[d.minP+1])
+    for i,b in enumerate(min_breakpoints):
+        d1 = np.datetime64(d.xd.iloc[d.minP+1] + timedelta(int(b)))
+        res_pos.append({'from':d0, 'to':d1, 'doubling (days)': int(np.log(2)/min_params[i+1])})
+        d0 = d1
+
+    d1 = np.datetime64(d.xd.iloc[-1])
+    res_pos.append({'from':d0, 'to':d1, 'doubling (days)': int(np.log(2)/min_params[-1])})
+
+    res_pos = pd.DataFrame(res_pos)
+    print(res_pos)
+
+    #plot the raw data
+    #-------------
+    axs.scatter(d.xd[d.minP+1:], d.dpositives, 
+                marker='o', s=200, alpha=0.8, 
+                c = d.dpositives, cmap = 'Oranges', norm=colors.LogNorm(vmin=1, vmax=100000), zorder=2,
+                label='positives')
+
+    axs.plot(d.xd[d.minP+1:], d.dpositives, ':', c='lightgrey', zorder=1)
+    
+    
+    
+    local_format_plot(axs, 'log', '{} {} - Daily COVID counts'.format(d.region, d.state))
+    axs.set_ylabel("Deaths & New Positive Test Results per Day")
+
+    #------------
+    output.record('PieceWise Exponential Growth model', fig, 'MPLPNG')    
+    output.record('Fatalities Doubling Time', res_fat.to_html(), 'HTML')
+    output.record('Positives Doubling Time', res_pos.to_html(), 'HTML')
+    
+    #---------------------
+    #HOSPITALIZATION
+    #---------------------
+    #ed = d.excess_deaths()
+    h = d.hospitalization()
+    if h is not None:
+        h = h[h['hospitalizedCurrently']>1]
+        axs.plot(h['date'], h['hospitalizedCurrently'],'b-', linewidth=5, alpha=0.5, label='in hospital')
+
+    return output
+
 
 #----------------------------
 #source = 'Johns Hopkins'    

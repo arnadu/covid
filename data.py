@@ -316,7 +316,14 @@ class Data():
     def hospitalization(self):
         data2 = self.database.ctsData
         if self.region=='US':
-            d2 = data2[(data2['region']=='US')&(data2['state']==self.state)]
+            #d2 = data2[(data2['region']=='US')&(data2['state']==self.state)]
+            d2 = data2[data2['region']=='US']
+            if self.state != '':
+                d2 = d2[d2['state']==self.state]
+
+            d2 = d2.groupby(['date']).sum().reset_index()  #aggregate county data to state level
+            d2 = d2.sort_values(by='date', ascending=True)
+            
             return d2[['date','hospitalizedCurrently']] if d2.shape[0]>0 else None
         else:
             None
