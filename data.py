@@ -8,6 +8,50 @@ import urllib, json
 import requests
 import io
 
+
+################################################################
+#EU data from https://www.google.com/publicdata/explore?ds=mo4pjipima872_&met_y=population&idim=country_group:eu&hl=en&dl=en#!ctype=l&strail=false&bcs=d&nselm=h&met_y=population&scale_y=lin&ind_y=false&rdim=country_group&idim=country_group:eu&idim=country:ea18:at:be:bg&ifdim=country_group&hl=en_US&dl=en&ind=false
+Europe=[
+    'Albania',
+    'Armenia',
+    'Azerbaijan',
+    'Austria', 
+    'Belgium', 
+    'Bulgaria',
+    'Croatia',
+    'Cyprus',
+    'Czechia',
+    'Denmark',
+    'Estonia',
+    'Finland', 
+    'France', 
+    'Germany', 
+    'Greece', 
+    'Hungary',
+    'Iceland', 
+    'Ireland', 
+    'Italy',
+    'Latvia',
+    'Lichtenstein',
+    'Lithuania',
+    'Luxembourg',
+    'Malta',
+    'Montenegro',
+    'Netherlands',
+    'North Macedonia',
+    'Norway', 
+    'Poland',
+    'Portugal',
+    'Romania',
+    'Slovakia',
+    'Slovenia',
+    'Spain', 
+    'Sweden', 
+    'Switzerland', 
+    'United Kingdom'
+]
+
+
 ################################################################
 ################################################################
 #To get the population at Country/Region, Province/State or county level; data from Johns Hopkins.
@@ -20,6 +64,13 @@ class DataPopulation():
         self.data['Admin2'] = self.data['Admin2'].fillna('')
         self.data['Province_State'] = self.data['Province_State'].fillna('')
         
+        d = self.data
+        d.loc[d['Country_Region'].isin(Europe),'Admin2']=d.loc[d['Country_Region'].isin(Europe),'Province_State']
+        d.loc[d['Country_Region'].isin(Europe),'Province_State']=d.loc[d['Country_Region'].isin(Europe),'Country_Region']
+        d.loc[d['Country_Region'].isin(Europe),'Country_Region']='Europe'
+        self.data = d
+
+        
         #get a dictionary of state abbreviations states['NY']='New York'
         url = 'https://worldpopulationreview.com/static/states/abbr-name.csv'
         r = requests.get(url).content
@@ -28,16 +79,27 @@ class DataPopulation():
         #display(self.states)
   
     
-    def get(self, country_region, province_state, county):
+    def filter(self, country_region, province_state, county):
         d = self.data[self.data['Country_Region'] == country_region]
-        d= d[d['Province_State'] == province_state]
-        d = d[d['Admin2']==county]    
+    
+        if country_region=='Europe':
+            if province_state != '':
+                d = d[d['Province_State'] == province_state]
+                d = d[d['Admin2']==county]    
+            else:
+                d = d[d['Admin2']=='']    #e.g. database has separate records for Europe/United Kingdom/'' and Europe/United Kingdom/England
+        else:
+            d = d[d['Province_State'] == province_state]
+            d = d[d['Admin2']==county]    
+        
+        return d        
+    
+    def get(self, country_region, province_state, county):
+        d = self.filter(country_region, province_state, county)
         return d['Population'].sum()
 
-    def report(self, country_region, province_state):
-        d  = self.data[self.data['Country_Region']==country_region]
-        if province_state != '':
-            d = d[d['Province_State']==province_state]
+    def report(self, country_region, province_state, county=''):
+        d = self.filter(country_region, province_state, county)
         return d
             
 #test
@@ -157,6 +219,10 @@ def load_jhu_global():
     d3['region'] = d3['Country/Region'].fillna('')
     d3['state'] = d3['Province/State'].fillna('')
     d3['county'] = ''
+    
+    d3.loc[d3['region'].isin(Europe),'state']=d3.loc[d3['region'].isin(Europe),'region']
+    d3.loc[d3['region'].isin(Europe),'region']='Europe'
+
     return d3[['region','state','county','date','positive','death']]    
     
 ################################################################
@@ -277,6 +343,7 @@ class Database():
         fatalities = c['death'].to_numpy().copy()
 
         return population, c['date'], x, positives, fatalities, (minDateP-minDate).days, (minDateD-minDate).days
+
 
 ################################################################
 ################################################################

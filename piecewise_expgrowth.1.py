@@ -32,16 +32,13 @@ import matplotlib.colors as colors
 
 
 #--------------------------------------------------------------
-def local_format_plot(ax, scale='linear', title='', legend=True):
+def local_format_plot(ax, scale='linear', title=''):
     
     ax.grid(axis='y', which='major', alpha=0.5)
     ax.grid(axis='y', which='minor', linestyle=':', alpha=0.5)
 
     ax.grid(axis='x', which='major', alpha=0.5)
-    
-    if legend:
-        ax.legend()
-        
+    ax.legend()
     ax.set_title(title, pad=5)
     
     #ax.yaxis.set_major_formatter(FuncFormatter(lambda x, p: '{:.1f}'.format(x)))       
@@ -132,7 +129,7 @@ def piecewiseexp(x, params, constants):
     return res
 
 #transform auxiliary values (which are bounded [0,1] into the breakpoint dates)
-def aux_to_breakpoints_old(aux, x0, xn, minwindow):
+def aux_to_breakpoints(aux, x0, xn, minwindow):
     breakpoints = []
     bi1 = x0
     for a in aux:
@@ -141,16 +138,6 @@ def aux_to_breakpoints_old(aux, x0, xn, minwindow):
         bi1=bi   
     return breakpoints
 
-def aux_to_breakpoints(aux, x0, xn, minwindow):
-    breakpoints = []
-    bi1 = x0
-    n=len(aux)
-    for i,a in enumerate(aux):
-        bi = a * (xn-(n-i)*minwindow - (bi1+minwindow)) + bi1+minwindow
-        breakpoints.append(bi)
-        bi1=bi   
-    return breakpoints
-    
 def piecewiseexp_diffevol_inner(aux, constants):
     
     x = constants['x']
@@ -389,7 +376,7 @@ def piecewiseexp_study(d, output, breaks=3, minwindow=14):
 '''
 
 
-def piecewiseexp_study(d, output, positives_breaks=3, fatalities_breaks=3, minwindow=14):
+def piecewiseexp_study(d, output, breaks=3, minwindow=14):
 
     fig, axs = plt.subplots(nrows=3,ncols=1,figsize=(12,24))  #figsize=(width,height)
     ax1 = axs[0]
@@ -411,10 +398,10 @@ def piecewiseexp_study(d, output, positives_breaks=3, fatalities_breaks=3, minwi
     #find the optimal piecewise exponentatial fit for the given number of breakpoints
     #--------------------------------------------
     min_params, min_breakpoints, min_likelihood, min_fit = piecewiseexp_diffevol(d.x[d.minD+1:],d.dfatalities,
-                                                                                        breaks=fatalities_breaks,minwindow=minwindow)
+                                                                                        breaks=breaks,minwindow=minwindow)
 
-    ax2.plot(d.xd[d.minD+1:], min_fit, "r-", zorder=4, label='{}-segment exponential regression'.format(fatalities_breaks+1))
-    ax3.plot(d.xd[d.minD+1:], min_fit, "r-", zorder=4, label='{}-segment exponential regression'.format(fatalities_breaks+1))
+    ax2.plot(d.xd[d.minD+1:], min_fit, "r-", zorder=4, label='breakpoints:{}'.format(breaks))
+    ax3.plot(d.xd[d.minD+1:], min_fit, "r-", zorder=4, label='breakpoints:{}'.format(breaks))
 
 
     #calculate the doubling time for each segment
@@ -449,14 +436,8 @@ def piecewiseexp_study(d, output, positives_breaks=3, fatalities_breaks=3, minwi
     ax2.plot(d.xd[d.minD+1:], d.dfatalities, ':', c='lightgrey', zorder=1)
     ax3.plot(d.xd[d.minD+1:], d.dfatalities, ':', c='lightgrey', zorder=1)
     '''
-    ax2.plot(d.xd[d.minD+1:], d.dfatalities, 'r.-', alpha=0.3, label='fatalities')
-    ax3.plot(d.xd[d.minD+1:], d.dfatalities, 'r.-', alpha=0.3, label='fatalities')
-
-    #plot 7-day rolling average
-    rolling = pd.DataFrame(data = d.dfatalities).rolling(minwindow).mean()
-    ax2.plot(d.xd[d.minD+1:], rolling, '-', color='salmon', label='{}-day rolling average'.format(minwindow))
-    ax3.plot(d.xd[d.minD+1:], rolling, '-', color='salmon', label='{}-day rolling average'.format(minwindow))
-    
+    ax2.plot(d.xd[d.minD+1:], d.dfatalities, 'r+:', label='fatalities')
+    ax3.plot(d.xd[d.minD+1:], d.dfatalities, 'r+:', label='fatalities')
 
     #------------
     #POSITIVES
@@ -465,10 +446,10 @@ def piecewiseexp_study(d, output, positives_breaks=3, fatalities_breaks=3, minwi
     #find the optimal piecewise exponentatial fit for the given number of breakpoints
     #--------------------------------------------
     min_params, min_breakpoints, min_likelihood, min_fit = piecewiseexp_diffevol(d.x[d.minP+1:],d.dpositives,
-                                                                                        breaks=positives_breaks,minwindow=minwindow)
+                                                                                        breaks=breaks,minwindow=minwindow)
 
-    ax1.plot(d.xd[d.minP+1:], min_fit, "k-", zorder=4, label='{}-segment exponential regression'.format(positives_breaks+1))
-    ax3.plot(d.xd[d.minP+1:], min_fit, "k-", zorder=4, label='{}-segment exponential regression'.format(positives_breaks+1))
+    ax1.plot(d.xd[d.minP+1:], min_fit, "k-", zorder=4, label='breakpoints:{}'.format(breaks))
+    ax3.plot(d.xd[d.minP+1:], min_fit, "k-", zorder=4, label='breakpoints:{}'.format(breaks))
 
 
     #calculate the doubling time for each segment
@@ -504,28 +485,14 @@ def piecewiseexp_study(d, output, positives_breaks=3, fatalities_breaks=3, minwi
     ax3.plot(d.xd[d.minP+1:], d.dpositives, ':', c='lightgrey', zorder=1)
     '''
     
-    ax1.plot(d.xd[d.minP+1:], d.dpositives, 'k.-', alpha=0.3, label='positives')
-    ax3.plot(d.xd[d.minP+1:], d.dpositives, 'k.-', alpha=0.3, label='positives')
+    ax1.plot(d.xd[d.minP+1:], d.dpositives, 'k+:', label='positives')
+    ax3.plot(d.xd[d.minP+1:], d.dpositives, 'k+:', label='positives')
     
-    #plot 7-day rolling average
-    rolling = pd.DataFrame(data = d.dpositives).rolling(minwindow).mean()
-    ax1.plot(d.xd[d.minP+1:], rolling, '-', color='grey', label='{}-day rolling average'.format(minwindow))
-    ax3.plot(d.xd[d.minP+1:], rolling, '-', color='grey', label='{}-day rolling average'.format(minwindow))
     
-    #---------------------
-    #HOSPITALIZATION
-    #---------------------
-    #ed = d.excess_deaths()
-    h = d.hospitalization()
-    if h is not None:
-        h = h[h['hospitalizedCurrently']>1]
-        ax1.plot(h['date'], h['hospitalizedCurrently'],'b-', linewidth=2, alpha=0.5, label='in hospital')
-        ax3.plot(h['date'], h['hospitalizedCurrently'],'b-', linewidth=2, alpha=0.5, label='in hospital')
-
     local_format_plot(ax1, 'linear', '{} {} - Daily Positives counts'.format(d.region, d.state))
     local_format_plot(ax2, 'linear', '{} {} - Daily Fatalities counts'.format(d.region, d.state))
-    local_format_plot(ax3, 'log', '{} {} - Daily counts'.format(d.region, d.state),legend=False)
-    ax1.set_ylabel("Current Hospitalizations, New Positive Test Results per Day")
+    local_format_plot(ax3, 'log', '{} {} - Daily counts'.format(d.region, d.state))
+    ax1.set_ylabel("Hospitalization, New Positive Test Results per Day")
     ax2.set_ylabel("Deaths per Day")
     ax3.set_ylabel("Counts Day")
 
@@ -534,6 +501,15 @@ def piecewiseexp_study(d, output, positives_breaks=3, fatalities_breaks=3, minwi
     output.record('Fatalities Doubling Time', '<p>Fatalities</p>' + res_fat.to_html(), 'HTML')
     output.record('Positives Doubling Time', '<p>Positives</p>' + res_pos.to_html(), 'HTML')
     
+    #---------------------
+    #HOSPITALIZATION
+    #---------------------
+    #ed = d.excess_deaths()
+    h = d.hospitalization()
+    if h is not None:
+        h = h[h['hospitalizedCurrently']>1]
+        ax1.plot(h['date'], h['hospitalizedCurrently'],'b-', linewidth=5, alpha=0.5, label='in hospital')
+        ax3.plot(h['date'], h['hospitalizedCurrently'],'b-', linewidth=5, alpha=0.5, label='in hospital')
 
     return output
 

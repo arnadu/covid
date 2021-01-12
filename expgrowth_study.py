@@ -284,7 +284,7 @@ def study3(source, region, state, cutoff_positive,cutoff_death, truncate, window
     #output.record('fig', fig1, 'MPLPNG')
     
     #--------------------
-    output = piecewiseexp_study(d, output, breaks=3, minwindow=14)
+    output = piecewiseexp_study(d, output, positives_breaks=5, fatalities_breaks=5, minwindow=14)
     #--------------------
     
 

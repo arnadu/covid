@@ -54,33 +54,22 @@ def main(argv):
     #            {'region':'US','state':'Texas'},
     #            {'region':'US','state':'Georgia'},
     
-    studies = [ {'region':'Europe','state':'France'},
-                {'region':'Europe','state':'Italy'},
-                {'region':'Europe','state':'Spain'},
-                {'region':'Europe','state':'United Kingdom'},
-                {'region':'Europe','state':'Portugal'},
-                {'region':'Europe','state':'Belgium'},
-                {'region':'Europe','state':'Sweden'},
-                {'region':'Europe','state':'Netherlands'},
-                {'region':'Europe','state':'Norway'},
-                {'region':'Europe','state':'Denmark'},
-                {'region':'Europe','state':'Germany'},
-                {'region':'Europe','state':'Ireland'},
+    studies = [ {'region':'France','state':''},
+                {'region':'Italy','state':''},
+                {'region':'Spain','state':''},
+                {'region':'United Kingdom','state':''},
+                {'region':'Portugal','state':''},
+                {'region':'Belgium','state':''},
+                {'region':'United Kingdom','state':''},
+                {'region':'Sweden','state':''},
+                {'region':'Netherlands','state':''},
             ]
 
-    studies.append({'region':'Europe','state':''})
-
     studies.append({'region':'US','state':''})
-
     for state in USStates:
         studies.append({'region':'US','state':state})
         
-    studies.append({'region':'Canada','state':''})
-    studies.append({'region':'Mexico','state':''})
-    studies.append({'region':'Brazil','state':''})
-    studies.append({'region':'China','state':''})
-    studies.append({'region':'Japan','state':''})
-
+        
     calcdate = datetime.today().strftime('%Y-%m-%d')
 
     #---------------------------
